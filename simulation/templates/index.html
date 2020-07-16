@@ -1,0 +1,197 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>CABINET MEDICAL</title>
+
+	<link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'dataTables.min.css' %}">
+	<link rel="stylesheet" href="{% static 'dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+	<nav class="navbar navbar-info fixed-top bg-info flex-md-nowrap p-0 shadow">
+      <a class="navbar-brand text-light d-none d-md-block mr-0" href="#">&nbsp;</a>
+      <p class="text-center font-weight-bold h3 text-light w-100 mr-0">lE bATCH cABINET</p>
+    </nav>
+
+    <div class="container-fluid">
+    	<div class="row">
+		    <div class="col-12 ml-lg-auto ml-md-auto ml-sm-auto mr-lg-0 mr-md-0 mr-sm-auto ml-sm-auto pt-4 pl-lg-5 pl-md-4 pl-sm-0 text-dark mt-5">
+		    	<div class="container-fluid row border border-dark">
+		    		<div class="col-lg-2 col-md-12 m-auto">
+		    			<legend>Parameters</legend>
+		    		</div>
+		    		<div class="col-lg-10 col-md-12">
+		    			<form class="form-inline" onsubmit="start_simulation(this); return false;">
+						  <div class="form-group m-2">
+						  	<label class="m-1" for="patients">Number of Patients</label>
+						    <input type="number" class="form-control" id="patients" placeholder="Patients" required="required" min="1" max="10000" step="1">
+						  </div>
+						  <div class="form-group m-2">
+						  	<label class="m-1" for="patients">Update Rate(s)</label>
+						    <select name="rate" id="rate" class="form-control" required="required">
+						    	<option value="1">1</option>
+						    	<option value="2">2</option>
+						    	<option value="3">3</option>
+						    </select>
+						  </div>
+						  <button type="submit" class="btn btn-primary m-2" id="start-btn">Simulate</button>
+						  <button type="reset" class="btn btn-danger m-2" hidden="hidden" id="stop-btn" onclick="stop_simulation()">Stop Simulation</button>
+						</form>
+		    		</div>
+		    	</div>
+		    </div>
+
+		    <div class="col-12 ml-lg-auto ml-md-auto ml-sm-auto mr-lg-0 mr-md-0 mr-sm-auto ml-sm-auto pt-4 pl-lg-5 pl-md-4 pl-sm-0 text-dark">
+		    	<div class="row">
+		    		<div class="col-lg-3 col-md-4 col-sm-6 border border-info shadow-lg rounded m-auto box">
+		    			<div class="m-auto box-label">
+		    				Waiting List
+		    			</div>
+		    			<div class="row box-data">
+		    				<div class="col-6 m-auto box-big">
+		    					<span id="waiting-number">0</span>
+		    				</div>
+		    				<div class="col-6 ml-auto row box-small">
+		    					<div class="col-12 m-auto pr-0 text-center box-small-up">
+		    						+<span id="waiting-arrivals">0</span>
+		    					</div>
+		    					<div class="col-12 m-auto pr-0 text-center box-small-down">
+		    						-<span id="waiting-exits">0</span>
+		    					</div>
+		    				</div>
+		    			</div>
+		    		</div>
+		    		<div class="col-lg-3 col-md-4 col-sm-6 border border-info shadow-lg rounded m-auto box">
+		    			<div class="m-auto box-label">
+		    				Current Consultation
+		    			</div>
+		    			<div class="row box-data">
+		    				<div class="col-6 m-auto box-big">
+		    					<span id="consult-number">0</span>
+		    				</div>
+		    				<div class="col-6 ml-auto row box-small">
+		    					<div class="col-12 m-auto pr-0 text-center box-small-up">
+		    						+<span id="consult-arrivals">0</span>
+		    					</div>
+		    					<div class="col-12 m-auto pr-0 text-center box-small-down">
+		    						-<span id="consult-exits">0</span>
+		    					</div>
+		    				</div>
+		    			</div>
+		    		</div>
+		    		<div class="col-lg-3 col-md-4 col-sm-6 border border-info shadow-lg rounded m-auto box">
+		    			<div class="m-auto box-label">
+		    				Total Patients
+		    			</div>
+		    			<div class="row box-data">
+		    				<div class="col-6 m-auto box-big">
+		    					<span id="patient-number">0</span>
+		    				</div>
+		    				<div class="col-6 ml-auto row box-small">
+		    					<div class="col-12 m-auto pr-0 text-center box-small-up">
+		    						+<span id="patient-arrivals">0</span>
+		    					</div>
+		    					<div class="col-12 m-auto pr-0 text-center box-small-down">
+		    						-<span id="patient-exits">0</span>
+		    					</div>
+		    				</div>
+		    			</div>
+		    		</div>
+		    	</div>
+		    	<div class="row">
+		    		&nbsp;
+		    	</div>
+		    	<div class="row">
+		    		<div class="col-4 mr-auto ml-auto">
+		    			<legend>Waiting list</legend>
+		    			<table class="table table-bordered table-hover" id="waiting-table">
+		    				<caption>
+		    					<i>Waiting list</i>
+		    				</caption>
+		    				<thead class="thead thead-dark">
+		    					<tr>
+		    						<th>Ticket ID</th>
+		    						<th>Name</th>
+		    						<th>Arrival</th>
+		    					</tr>
+		    				</thead>
+		    				<tbody>
+		    				</tbody>
+		    			</table>
+		    		</div>
+		    		<div class="col-4 mr-auto ml-auto">
+		    			<legend>Consulting list</legend>
+		    			<table class="table table-bordered table-hover" id="consult-table">
+		    				<caption>
+		    					<i>Consulting list</i>
+		    				</caption>
+		    				<thead class="thead thead-dark">
+		    					<tr>
+		    						<th>Ticket ID</th>
+		    						<th>Name</th>
+		    						<th>Doctor</th>
+		    						<th>Symptoms</th>
+		    					</tr>
+		    				</thead>
+		    				<tbody>
+		    				</tbody>
+		    			</table>
+		    		</div>
+		    		<div class="col-4 mr-auto ml-auto">
+		    			<legend>Diagnosed list</legend>
+		    			<table class="table table-bordered table-hover" id="diagnosed-table">
+		    				<caption>
+		    					<i>Diagnosed list</i>
+		    				</caption>
+		    				<thead class="thead thead-dark">
+		    					<tr>
+		    						<th>Ticket ID</th>
+		    						<th>Name</th>
+		    						<th>Symptoms</th>
+		    						<th>Diagnosis</th>
+		    					</tr>
+		    				</thead>
+		    				<tbody>
+		    				</tbody>
+		    			</table>
+		    		</div>
+		    	</div>
+		    	<div class="row">
+		    		&nbsp;
+		    	</div>
+		    	<div class="row">
+		    		<div class="col-12 m-auto">
+		    			<legend>Patient Information</legend>
+		    			<table class="table table-bordered table-hover" id="patient-table">
+		    				<caption>
+		    					<i>Patients list</i>
+		    				</caption>
+		    				<thead class="thead thead-dark">
+		    					<tr>
+		    						<th>ID</th>
+		    						<th>Name</th>
+		    						<th>D.O.B</th>
+		    						<th>Arrival Date</th>
+		    						<th>Ticket ID</th>
+		    						<th>Patient State</th>
+		    					</tr>
+		    				</thead>
+		    				<tbody>
+		    				</tbody>
+		    			</table>
+		    		</div>
+		    	</div>
+		    </div>
+    	</div>
+    </div>
+
+	<script src="{% static 'jquery-3.4.1.js' %}"></script>
+	<script src="{% static 'bootstrap.min.js' %}"></script>
+	<script src="{% static 'dataTables.min.js' %}"></script>
+	<script src="{% static 'script.js' %}"></script>
+	<script src="{% static 'sockets.js' %}"></script>
+</body>
+</html>
